@@ -10,6 +10,7 @@ export default function App() {
             <StatusBar
                 backgroundColor="#FFF"
                 barStyle="dark-content" />
+
             <Navigation />
         </GlobalProvider>
     )

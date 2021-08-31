@@ -1,15 +1,21 @@
-import React from 'react'
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native'
-import { useNavigation } from '@react-navigation/core'
+import React, { useEffect } from 'react'
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useIsFocused, useNavigation } from '@react-navigation/core'
 import Header from '../components/Header'
 import { OrdersInMap } from '../components/common/Svgs'
 import OrderItem from '../components/OrderItem'
 import { useLoad } from '../hooks/request'
 import { ACTIVE_ORDERS } from '../urls'
+import Loader from '../components/common/Loader'
 
 export default function OrdersList() {
     const orders = useLoad({ url: ACTIVE_ORDERS })
     const navigation = useNavigation()
+    const isFocused = useIsFocused()
+
+    useEffect(() => {
+        if (isFocused) orders.request()
+    }, [isFocused])
 
     return (
         <View style={styles.container}>
@@ -22,7 +28,7 @@ export default function OrdersList() {
                 <Text style={styles.changeViewTypeText}>ЗАДАНИЯ НА КАРТЕ</Text>
             </TouchableOpacity>
 
-            {orders.loading && !orders.response ? <ActivityIndicator size={50} color="#000" style={{ marginTop: 200 }} /> : null}
+            {orders.loading && !orders.response ? <Loader style={{ marginTop: 200 }} /> : null}
 
             <FlatList
                 keyExtractor={(item) => item.id}

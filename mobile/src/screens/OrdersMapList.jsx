@@ -23,11 +23,11 @@ export default function OrdersMapList() {
 
             <MapView
                 showsUserLocation
-                style={{ height: '50%' }}>
+                style={{ flex: 0.8 }}>
                 {ordersList.map((order) => (
                     <Marker
                         key={order.id}
-                        onCalloutPress={() => console.log(order)}
+                        onCalloutPress={() => navigation.navigate('OrderDetail', { order })}
                         title={order.name}
                         description={order.description}
                         coordinate={{ latitude: order.longitude, longitude: order.latitude }} />

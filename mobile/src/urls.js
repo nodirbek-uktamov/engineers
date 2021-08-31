@@ -1,2 +1,8 @@
 export const REGISTRATION = '/User/Registration'
 export const ACTIVE_ORDERS = '/Order/GetOpen'
+export const GET_ORDER_BY_USER = '/Order/GetByUser'
+export const DELETE_ORDER = '/Order/Delete/{id}'
+export const CREATE_ORDER = '/Order/Create'
+export const RESPONDS_LIST = '/Order/GetResponds'
+export const SEND_RESPOND = '/Order/SendRespond'
+export const DELETE_RESPOND = '/Respond/Delete'

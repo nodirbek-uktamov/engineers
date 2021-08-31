@@ -22,7 +22,7 @@ export function useRequest(options = {}) {
     const [response, setResponse] = useState()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState({})
-    const { token, signOut } = useContext(GlobalContext)
+    const { signOut } = useContext(GlobalContext)
 
     async function request(overrideOptions = {}, sync = false) {
         setLoading(true)

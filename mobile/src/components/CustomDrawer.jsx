@@ -1,10 +1,17 @@
 import React, { useContext } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { Camera, Logo } from './common/Svgs'
 import { GlobalContext } from '../contexts/GlobalContext'
 
-export default function CustomDrawer() {
+export default function CustomDrawer({ navigation }) {
+    const { navigate } = navigation
     const { user } = useContext(GlobalContext)
+
+    function Navigate({ to, children }) {
+        return <TouchableOpacity onPress={() => navigate(to)}>{children}</TouchableOpacity>
+    }
+
+    if (!user) return <View />
 
     return (
         <View style={styles.container}>
@@ -19,9 +26,8 @@ export default function CustomDrawer() {
             </View>
 
             <View style={{ marginTop: 30 }}>
-                <Text style={styles.tabText}>Мои задания</Text>
-                <Text style={styles.tabText}>Мои товары</Text>
-                <Text style={styles.tabText}>Все задания</Text>
+                <Navigate to="MyOrders"><Text style={styles.tabText}>Мои задания</Text></Navigate>
+                <Navigate to="OrdersList"><Text style={styles.tabText}>Все задания</Text></Navigate>
                 <Text style={styles.tabText}>Все исполнители</Text>
                 <Text style={styles.tabText}>Баланс</Text>
                 <Text style={styles.tabText}>Диалоги</Text>
@@ -50,7 +56,8 @@ const styles = StyleSheet.create({
     },
     tabText: {
         fontSize: 17,
-        marginTop: 15,
+        height: 40,
+        textAlignVertical: 'center',
     },
     fullName: {
         color: '#545E74',

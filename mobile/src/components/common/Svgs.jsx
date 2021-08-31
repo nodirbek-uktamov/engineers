@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import Svg, { LinearGradient, Stop, Defs, G, Path } from 'react-native-svg'
+import Svg, { LinearGradient, Stop, Defs, G, Path, ClipPath } from 'react-native-svg'
 
 export function ShowPassword() {
     return (
@@ -796,6 +796,96 @@ export function Respond(props) {
                 d="M11.178 0a11.18 11.18 0 019.25 17.47l-9.25 14.05V15.38a3.34 3.34 0 013.34 3.32v3.24l3.84-5.83a9 9 0 001.5-4.88 8.71 8.71 0 00-8.71-8.7V.05l.03-.05zm0 14.23v-6.7a3.35 3.35 0 010 6.7z"
                 fill="#43BD46"
             />
+        </Svg>
+    )
+}
+
+export function CreateOrder(props) {
+    return (
+        <Svg
+            width={35}
+            height={35}
+            viewBox="0 0 19 21"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
+        >
+            <Path
+                d="M17.36 18.45v-17a.86.86 0 00-.85-.85H1.22a.86.86 0 00-.85.85v17A2.55 2.55 0 002.92 21h15.31a4.2 4.2 0 01-.87-2.55zM2.92 3.15H8v5.1H2.92v-5.1zM14.81 15.9H2.92v-1.7h11.89v1.7zm0-3.4H2.92v-1.7h11.89v1.7zm0-4.25h-5.1v-1.7h5.1v1.7zm0-3.4h-5.1v-1.7h5.1v1.7z"
+                fill="#43BD46"
+            />
+        </Svg>
+    )
+}
+
+export function Location(props) {
+    return (
+        <Svg
+            width={35}
+            height={35}
+            viewBox="0 0 18 18"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
+        >
+            <G clipPath="url(#prefix__clip0)">
+                <Path
+                    d="M17.39 1L0 8.05l8.43 1.91L17.39 1z"
+                    fill="url(#prefix__paint0_linear)"
+                />
+                <Path
+                    d="M17.39 1l-7.06 17.38-1.9-8.42L17.39 1z"
+                    fill="url(#prefix__paint1_linear)"
+                />
+            </G>
+            <Defs>
+                <LinearGradient
+                    id="prefix__paint0_linear"
+                    x1={8.22}
+                    y1={11.54}
+                    x2={8.663}
+                    y2={0.866}
+                    gradientUnits="userSpaceOnUse"
+                >
+                    <Stop stopColor="#394356" />
+                    <Stop offset={0.633} stopColor="#A0ABCA" />
+                    <Stop offset={1} stopColor="#EEF0F5" />
+                    <Stop offset={1} stopColor="#B5BDD5" />
+                </LinearGradient>
+                <LinearGradient
+                    id="prefix__paint1_linear"
+                    x1={7.7}
+                    y1={16.98}
+                    x2={17.083}
+                    y2={1.332}
+                    gradientUnits="userSpaceOnUse"
+                >
+                    <Stop stopColor="#EEF0F5" stopOpacity={0} />
+                    <Stop offset={0.02} stopColor="#6F7589" />
+                    <Stop offset={0.5} stopColor="#666F80" />
+                    <Stop offset={0.68} stopColor="#454C5B" />
+                    <Stop offset={0.77} stopColor="#303644" />
+                    <Stop offset={0.85} stopColor="#303644" />
+                </LinearGradient>
+                <ClipPath id="prefix__clip0">
+                    <Path fill="#fff" d="M0 0h18v18H0z" />
+                </ClipPath>
+            </Defs>
+        </Svg>
+    )
+}
+
+export function Marker(props) {
+    return (
+        <Svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={50}
+            height={50}
+            fill="#000"
+            viewBox="0 0 45.354 45.354"
+            {...props}
+        >
+            <Path d="M22.677 0C12.509 0 4.266 8.243 4.266 18.411c0 9.224 11.471 21.36 16.305 26.065a3.088 3.088 0 004.263.047c4.863-4.533 16.254-16.211 16.254-26.113C41.087 8.243 32.845 0 22.677 0zm0 24.393c-4.204 0-7.61-3.406-7.61-7.609a7.61 7.61 0 1115.218 0 7.607 7.607 0 01-7.608 7.609z" />
         </Svg>
     )
 }

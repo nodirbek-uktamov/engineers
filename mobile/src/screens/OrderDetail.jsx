@@ -1,62 +1,52 @@
-import React from 'react'
-import { Image, StyleSheet, Text, TouchableOpacity, View, FlatList } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import MapView, { Marker } from 'react-native-maps'
+import { useIsFocused } from '@react-navigation/core'
 import Header from '../components/Header'
 import { Description, Map, Respond } from '../components/common/Svgs'
 import { domain } from '../utils/request'
 import { getDate } from '../utils/date'
+import { RESPONDS_LIST } from '../urls'
+import { useLoad } from '../hooks/request'
+import { GlobalContext } from '../contexts/GlobalContext'
+import RespondItem from '../components/RespondItem'
+import CreateRespond from '../components/CreateRespond'
+import Loader from '../components/common/Loader'
 
 export default function OrderDetail({ route }) {
     const { order } = route.params
-    console.log(order.responds)
+    const { user } = useContext(GlobalContext)
+    const responds = useLoad({ url: RESPONDS_LIST, params: { id: order.id } })
+    const isRespondSend = responds.response?.data?.filter((i) => i.userId === user.id).length > 0
+    const imageUri = order?.images?.split(';')[0] || 'Upload/Default/DefaultImage.png'
+    const [tab, setTab] = useState('details')
 
-    // {
-    //     UserId: 'cff67636-f8ec-4d8b-83bb-734e989cd1d1',
-    //     OrderId: 1,
-    //     Text: 'string',
-    //     Created_at: '2021-08-23T02:22:49.958Z',
-    // } // дата создание откликов
+    const isFocused = useIsFocused()
+
+    useEffect(() => {
+        if (!isFocused) setTab('details')
+    }, [isFocused])
 
     return (
         <View style={styles.container}>
             <Header title="ПОДПИСКИ" />
 
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-                <View style={styles.description}>
+                <TouchableOpacity onPress={() => setTab('details')} style={styles.description}>
                     <Description />
                     <Text style={styles.descriptionText}>ОПИСАНИЕ</Text>
-                </View>
+                </TouchableOpacity>
 
-                <View style={styles.map}>
+                <TouchableOpacity onPress={() => setTab('map')} style={styles.map}>
                     <Map />
                     <Text style={styles.mapText}>КАРТА</Text>
-                </View>
+                </TouchableOpacity>
             </View>
 
-            <View style={styles.item}>
-                <Image style={styles.image} source={{ uri: `${domain}/${order.images.split(';')[0]}` }} />
-
-                <View style={styles.flex}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={styles.createdAt}>{getDate(order.created_at)}</Text>
-                        <Text style={styles.price}>{order.cost} ₽</Text>
-                    </View>
-
-                    <Text style={styles.name}>{order.name}</Text>
-                    <Text style={styles.userName}>{order.owner.fullName}</Text>
-                </View>
-            </View>
-
-            <Text style={styles.orderDescription}>{order.description}</Text>
-
-            <View style={styles.respondsTitleContainer}>
-                <Respond />
-                <Text style={styles.respondsTitle}>ОТКЛИКИ ({order.responds.length})</Text>
-            </View>
-
-            <FlatList keyExtractor={(item) => item.id} data={order.responds} renderItem={({ item }) => (
-                <View>
+            {tab === 'details' ? (
+                <ScrollView keyboardShouldPersistTaps="handled">
                     <View style={styles.item}>
-                        <Image style={styles.image} source={{ uri: `${domain}/${order.images.split(';')[0]}` }} />
+                        <Image style={styles.image} source={{ uri: `${domain}/${imageUri}` }} />
 
                         <View style={styles.flex}>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -64,14 +54,49 @@ export default function OrderDetail({ route }) {
                                 <Text style={styles.price}>{order.cost} ₽</Text>
                             </View>
 
-                            <Text style={styles.name}>Name of User{/* TODO: fix name of user */}</Text>
-                            <Text>* * * *{/* TODO: fix stars */}</Text>
+                            <Text style={styles.name}>{order.name}</Text>
+                            <Text style={styles.userName}>{order.ownerName}</Text>
                         </View>
                     </View>
 
-                    <Text style={styles.respondsText}>{item.text}</Text>
-                </View>
-            )} />
+                    <Text style={styles.orderDescription}>{order.description}</Text>
+
+                    {responds.loading ? <Loader /> : (
+                        <View style={styles.respondsTitleContainer}>
+                            <Respond />
+                            <Text style={styles.respondsTitle}>ОТКЛИКИ ({responds.response?.data?.length || 0})</Text>
+                        </View>
+                    )}
+
+                    <View style={{ marginBottom: 20 }}>
+                        {responds.response?.data?.map((item) => (
+                            <RespondItem
+                                key={item.id} onDelete={responds.request}
+                                item={item} />
+                        ))}
+                    </View>
+
+                    {!isRespondSend ? (
+                        <CreateRespond onCreate={responds.request} orderId={order.id} />
+                    ) : null}
+                </ScrollView>
+            ) : (
+                <MapView
+                    initialRegion={{
+                        latitude: order.latitude,
+                        longitude: order.longitude,
+                        latitudeDelta: 0.045163783434134075,
+                        longitudeDelta: 0.03352995961904526,
+                    }}
+                    showsUserLocation
+                    style={{ flex: 0.8 }}>
+                    <Marker
+                        key={order.id}
+                        title={order.name}
+                        description={order.description}
+                        coordinate={{ latitude: order.latitude, longitude: order.longitude }} />
+                </MapView>
+            )}
         </View>
     )
 }
@@ -106,7 +131,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 15,
     },
-
     item: {
         marginBottom: 10,
         flexDirection: 'row',
@@ -151,10 +175,6 @@ const styles = StyleSheet.create({
     respondsTitleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
-    },
-    respondsText: {
-        color: '#000000',
         marginBottom: 20,
     },
 })

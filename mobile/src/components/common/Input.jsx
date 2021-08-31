@@ -57,7 +57,7 @@ export default function Input({
                             ref={(ref) => { textInput = ref }}
                             style={{ ...styles.inputStyle, ...text }}
                             onChangeText={(value) => form.setFieldValue(name, value)}
-                            value={String(field.value || '')}
+                            value={String(name ? field.value || '' : '')}
                             keyboardType={keyboard}
                             placeholder={placeholder}
                             maxLength={maxLength}
@@ -78,7 +78,7 @@ export default function Input({
     )
 }
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     label: {
         fontSize: 16,
         marginBottom: 5,

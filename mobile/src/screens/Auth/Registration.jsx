@@ -18,7 +18,7 @@ export default function Registration({ route }) {
     const [error, setError] = useState('')
 
     async function onSubmit(data) {
-        const { response, error: e } = await registration.request({
+        const { response } = await registration.request({
             params: { password: data.Password },
             data: { ...data, Role },
         })

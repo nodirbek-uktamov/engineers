@@ -11,6 +11,8 @@ import OrdersList from './screens/OrdersList'
 import OrdersMapList from './screens/OrdersMapList'
 import CustomDrawer from './components/CustomDrawer'
 import OrderDetail from './screens/OrderDetail'
+import MyOrders from './screens/MyOrders'
+import OrderCreate from './screens/OrderCreate'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -36,6 +38,8 @@ export default function Navigation() {
                 <Drawer.Screen name="OrdersList" component={OrdersList} />
                 <Drawer.Screen name="OrdersMapList" component={OrdersMapList} />
                 <Drawer.Screen name="OrderDetail" component={OrderDetail} />
+                <Drawer.Screen name="MyOrders" component={MyOrders} />
+                <Drawer.Screen name="OrderCreate" component={OrderCreate} />
 
                 {/* <Stack.Screen */}
                 {/* name="TabScreen" */}
