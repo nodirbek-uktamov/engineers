@@ -71,7 +71,6 @@ export default function OrderCreate() {
                                         onRegionChangeComplete={({ latitude, longitude }) => {
                                             setFieldValue('Latitude', latitude)
                                             setFieldValue('Longitude', longitude)
-                                            console.log(latitude, longitude)
                                         }}
                                         showsUserLocation
                                         style={{ height: 500 }}>
