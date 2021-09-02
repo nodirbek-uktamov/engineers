@@ -1,23 +1,38 @@
-import React, { useContext } from 'react'
-import { StyleSheet, Text, View, Image, TouchableOpacity, Alert } from 'react-native'
-import { useNavigation } from '@react-navigation/core'
+import React, { useContext, Fragment } from 'react'
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Trash2 } from 'react-native-feather'
 import { GlobalContext } from '../contexts/GlobalContext'
 import { usePostRequest } from '../hooks/request'
-import { DELETE_RESPOND } from '../urls'
-import { deleteAlert } from '../utils/helpers'
+import { DELETE_RESPOND, SELECT_EXECUTOR } from '../urls'
+import { surveyAlert } from '../utils/helpers'
 import { getDate } from '../utils/date'
 import { domain } from '../utils/request'
+import { ChevronRight } from './common/Svgs'
+import Loader from './common/Loader'
 
-export default function RespondItem({ item, onDelete }) {
+export default function RespondItem({ item, onDelete, isOwner, order, onChange }) {
     const { user } = useContext(GlobalContext)
     const deleteRespond = usePostRequest({ url: DELETE_RESPOND })
+    const selectExecutor = usePostRequest({ url: SELECT_EXECUTOR })
 
     function handleDeleteRespond(id) {
-        deleteAlert(async () => {
+        surveyAlert(async () => {
             await deleteRespond.request({ params: { id } })
             onDelete()
-        })
+        }, 'Вы действительно хотите удалить?')
+    }
+
+    function executorSelectHandler() {
+        if (selectExecutor.loading) return
+
+        surveyAlert(async () => {
+            await selectExecutor.request({ data: { ...order, inWorkId: item.id }, params: { userId: item.userId } })
+            onChange()
+        }, 'Вы действительно хотите выбрать этого исполнителя?')
+    }
+
+    function closeOrder() {
+        console.log('close order') // TODO: write this function
     }
 
     return (
@@ -45,6 +60,36 @@ export default function RespondItem({ item, onDelete }) {
                     <Trash2 color="#43BD46" width={25} height={25} />
                     <Text style={{ marginLeft: 5, color: 'gray' }}>Удалить отклик</Text>
                 </TouchableOpacity>
+            ) : null}
+
+            {isOwner && (order.inWorkId === 0) ? (
+                <View style={{ alignItems: selectExecutor.loading ? 'center' : 'flex-end' }}>
+                    <TouchableOpacity
+                        onPress={executorSelectHandler}
+                        style={styles.button}>
+                        {!selectExecutor.loading ? (
+                            <Fragment>
+                                <Text style={styles.buttonText}>ВЫБРАТЬ ИСПОЛНИТЕЛЕМ</Text>
+                                <ChevronRight style={{ width: 30, marginLeft: 15 }} />
+                            </Fragment>
+                        ) : <Loader />}
+                    </TouchableOpacity>
+                </View>
+            ) : null}
+
+            {isOwner && (order.inWorkId !== 0) ? (
+                <View style={{ alignItems: false ? 'center' : 'flex-end' }}>
+                    <TouchableOpacity
+                        onPress={closeOrder}
+                        style={styles.button}>
+                        {!false ? (
+                            <Fragment>
+                                <Text style={styles.buttonText}>ЗАВЕРШИТЬ ЗАДАНИЕ</Text>
+                                <ChevronRight style={{ width: 30, marginLeft: 15 }} />
+                            </Fragment>
+                        ) : <Loader />}
+                    </TouchableOpacity>
+                </View>
             ) : null}
         </View>
     )
@@ -81,5 +126,14 @@ const styles = StyleSheet.create({
         width: 70,
         height: 70,
         borderRadius: 100,
+    },
+    button: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    buttonText: {
+        fontSize: 17,
+        textDecorationLine: 'underline',
+        color: '#545E74',
     },
 })

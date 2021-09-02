@@ -1,14 +1,14 @@
 import { Alert } from 'react-native'
 
-export function deleteAlert(onDelete) {
+export function surveyAlert(onSuccess, text) {
     Alert.alert(
         '',
-        'Вы действительно хотите удалить?',
+        text,
         [
             { text: 'Нет', onPress: () => {}, style: 'cancel' },
             {
                 text: 'Да',
-                onPress: onDelete,
+                onPress: onSuccess,
             },
         ],
     )

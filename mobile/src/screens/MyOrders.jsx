@@ -5,16 +5,16 @@ import { Trash2 } from 'react-native-feather'
 import Header from '../components/Header'
 import OrderItem from '../components/OrderItem'
 import { useDeleteRequest, useGetRequest } from '../hooks/request'
-import { ACTIVE_ORDERS, DELETE_ORDER } from '../urls'
+import { ALL_ORDERS, DELETE_ORDER } from '../urls'
 import { GlobalContext } from '../contexts/GlobalContext'
-import { deleteAlert } from '../utils/helpers'
+import { surveyAlert } from '../utils/helpers'
 import { CreateOrder } from '../components/common/Svgs'
 import Loader from '../components/common/Loader'
 
 export default function OrdersList() {
     const navigation = useNavigation()
     const { user } = useContext(GlobalContext)
-    const orders = useGetRequest({ url: ACTIVE_ORDERS, params: { userId: user.id } }) // TODO: change url to GET_ORDER_BY_USER
+    const orders = useGetRequest({ url: ALL_ORDERS, params: { userId: user.id } }) // TODO: change url to GET_ORDER_BY_USER
     const orderDelete = useDeleteRequest()
 
     const isFocused = useIsFocused()
@@ -24,10 +24,10 @@ export default function OrdersList() {
     }, [isFocused])
 
     async function handleDelete(id) {
-        deleteAlert(async () => {
+        surveyAlert(async () => {
             await orderDelete.request({ url: DELETE_ORDER.replace('{id}', id) })
             orders.request()
-        })
+        }, 'Вы действительно хотите удалить?')
     }
 
     return (

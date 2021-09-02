@@ -12,9 +12,10 @@ export default function CreateRespond({ orderId, onCreate }) {
     const createRespond = usePostRequest({ url: SEND_RESPOND })
     const { user } = useContext(GlobalContext)
 
-    async function onCreateRespond(data) {
+    async function onCreateRespond(data, actions) {
         if (createRespond.loading) return
         await createRespond.request({ data: { Text: data.Text?.trim(), orderId, UserId: user.id } })
+        actions.resetForm()
         onCreate()
     }
 
@@ -44,6 +45,7 @@ const styles = StyleSheet.create({
     button: {
         flexDirection: 'row',
         alignItems: 'center',
+        width: 170,
     },
     buttonText: {
         fontSize: 17,

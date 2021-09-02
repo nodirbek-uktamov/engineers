@@ -22,9 +22,8 @@ export default function OrderCreate() {
     const navigation = useNavigation()
 
     async function onSubmit(data, actions) {
-        console.log(data)
         if (createOrder.loading) return
-        await createOrder.request({ data: { ...data, OwnerId: user.id } })
+        const { response } = await createOrder.request({ data: { ...data, OwnerId: user.id } })
         actions.resetForm()
         navigation.navigate('MyOrders')
     }
@@ -34,7 +33,7 @@ export default function OrderCreate() {
             <Header style={{ marginBottom: 40 }} title="СОЗДАНИЕ ЗАДАНИЯ" />
 
             <ScrollView>
-                <Formik onSubmit={onSubmit} initialValues={{ Name: '', Description: '', Longitude: '', Latitude: '', Cost: '' }}>
+                <Formik onSubmit={onSubmit} initialValues={{ Name: '', Description: '', Longitude: 0, Latitude: 0, Cost: '' }}>
                     {({ setFieldValue, values, handleSubmit }) => (
                         <View style={{ flex: 1 }}>
                             {!showMap ? (

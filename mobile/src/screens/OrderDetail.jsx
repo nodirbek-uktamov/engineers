@@ -1,22 +1,24 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { Image, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import MapView, { Marker } from 'react-native-maps'
 import { useIsFocused } from '@react-navigation/core'
 import Header from '../components/Header'
-import { Description, Map, Respond } from '../components/common/Svgs'
+import { Clock, Description, Map, Respond } from '../components/common/Svgs'
 import { domain } from '../utils/request'
 import { getDate } from '../utils/date'
-import { RESPONDS_LIST } from '../urls'
-import { useLoad } from '../hooks/request'
+import { ORDER_DETAIL, RESPONDS_LIST } from '../urls'
+import { useGetRequest } from '../hooks/request'
 import { GlobalContext } from '../contexts/GlobalContext'
 import RespondItem from '../components/RespondItem'
 import CreateRespond from '../components/CreateRespond'
 import Loader from '../components/common/Loader'
 
 export default function OrderDetail({ route }) {
-    const { order } = route.params
+    const { order: o } = route.params
+    const orderDetail = useGetRequest({ url: ORDER_DETAIL.replace('{id}', o.id) })
+    const order = orderDetail.response?.data || o
     const { user } = useContext(GlobalContext)
-    const responds = useLoad({ url: RESPONDS_LIST, params: { id: order.id } })
+    const responds = useGetRequest({ url: RESPONDS_LIST, params: { id: order.id } })
     const isRespondSend = responds.response?.data?.filter((i) => i.userId === user.id).length > 0
     const imageUri = order?.images?.split(';')[0] || 'Upload/Default/DefaultImage.png'
     const [tab, setTab] = useState('details')
@@ -24,8 +26,25 @@ export default function OrderDetail({ route }) {
     const isFocused = useIsFocused()
 
     useEffect(() => {
-        if (!isFocused) setTab('details')
+        if (!isFocused) {
+            setTab('details')
+            responds.setResponse(null)
+            orderDetail.setResponse(null)
+        }
+
+        if (isFocused) {
+            responds.request()
+        }
+        // eslint-disable-next-line
     }, [isFocused])
+
+    const isOwner = user.id === order.ownerId
+    let respondsList = responds.response?.data || []
+    respondsList = isOwner ? respondsList : respondsList.filter((item) => item.userId === user.id)
+
+    if (order.inWorkId && isOwner) {
+        respondsList = respondsList.filter((item) => item.id === order.inWorkId)
+    }
 
     return (
         <View style={styles.container}>
@@ -37,10 +56,12 @@ export default function OrderDetail({ route }) {
                     <Text style={styles.descriptionText}>ОПИСАНИЕ</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={() => setTab('map')} style={styles.map}>
-                    <Map />
-                    <Text style={styles.mapText}>КАРТА</Text>
-                </TouchableOpacity>
+                {order.longitude !== 0 && order.latitude !== 0 ? (
+                    <TouchableOpacity onPress={() => setTab('map')} style={styles.map}>
+                        <Map />
+                        <Text style={styles.mapText}>КАРТА</Text>
+                    </TouchableOpacity>
+                ) : null}
             </View>
 
             {tab === 'details' ? (
@@ -61,22 +82,34 @@ export default function OrderDetail({ route }) {
 
                     <Text style={styles.orderDescription}>{order.description}</Text>
 
-                    {responds.loading ? <Loader /> : (
+                    {responds.loading ? <Loader /> : null}
+
+                    {!responds.loading && responds.response && order.inWorkId === 0 ? (
                         <View style={styles.respondsTitleContainer}>
                             <Respond />
                             <Text style={styles.respondsTitle}>ОТКЛИКИ ({responds.response?.data?.length || 0})</Text>
                         </View>
-                    )}
+                    ) : null}
 
-                    <View style={{ marginBottom: 20 }}>
-                        {responds.response?.data?.map((item) => (
+                    {!responds.loading && order.inWorkId !== 0 ? (
+                        <View style={styles.respondsTitleContainer}>
+                            <Clock />
+                            <Text style={styles.respondsTitle}>ИСПОЛНЕНИЕ ЗАДАНИЯ</Text>
+                        </View>
+                    ) : null}
+
+                    <View style={{ marginBottom: 0 }}>
+                        {respondsList.map((item) => (
                             <RespondItem
+                                onChange={orderDetail.request}
+                                order={order}
+                                isOwner={isOwner}
                                 key={item.id} onDelete={responds.request}
                                 item={item} />
                         ))}
                     </View>
 
-                    {!isRespondSend ? (
+                    {!isRespondSend && !isOwner && order.inWorkId === 0 ? (
                         <CreateRespond onCreate={responds.request} orderId={order.id} />
                     ) : null}
                 </ScrollView>

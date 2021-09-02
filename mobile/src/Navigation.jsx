@@ -13,6 +13,7 @@ import CustomDrawer from './components/CustomDrawer'
 import OrderDetail from './screens/OrderDetail'
 import MyOrders from './screens/MyOrders'
 import OrderCreate from './screens/OrderCreate'
+import Profile from './screens/Profile'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -40,6 +41,7 @@ export default function Navigation() {
                 <Drawer.Screen name="OrderDetail" component={OrderDetail} />
                 <Drawer.Screen name="MyOrders" component={MyOrders} />
                 <Drawer.Screen name="OrderCreate" component={OrderCreate} />
+                <Drawer.Screen name="Profile" component={Profile} />
 
                 {/* <Stack.Screen */}
                 {/* name="TabScreen" */}
