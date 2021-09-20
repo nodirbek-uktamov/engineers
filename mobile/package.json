@@ -10,6 +10,8 @@
         "lint": "eslint ."
     },
     "dependencies": {
+        "@aspnet/signalr": "^1.0.27",
+        "@microsoft/signalr": "^5.0.10",
         "@react-native-community/async-storage": "^1.12.1",
         "@react-native-community/masked-view": "^0.1.11",
         "@react-navigation/bottom-tabs": "^5.11.11",
@@ -22,11 +24,14 @@
         "react-native": "0.64.2",
         "react-native-feather": "^1.0.2",
         "react-native-gesture-handler": "^1.10.3",
+        "react-native-image-picker": "3.3.2",
         "react-native-maps": "^0.28.0",
         "react-native-reanimated": "^2.2.0",
         "react-native-safe-area-context": "^3.2.0",
         "react-native-screens": "^3.4.0",
-        "react-native-svg": "^12.1.1"
+        "react-native-stars": "^1.2.2",
+        "react-native-svg": "^12.1.1",
+        "react-native-vector-icons": "^8.1.0"
     },
     "devDependencies": {
         "@babel/core": "^7.12.9",

@@ -5,7 +5,7 @@ import { Trash2 } from 'react-native-feather'
 import Header from '../components/Header'
 import OrderItem from '../components/OrderItem'
 import { useDeleteRequest, useGetRequest } from '../hooks/request'
-import { ALL_ORDERS, DELETE_ORDER } from '../urls'
+import { GET_ORDER_BY_USER, DELETE_ORDER } from '../urls'
 import { GlobalContext } from '../contexts/GlobalContext'
 import { surveyAlert } from '../utils/helpers'
 import { CreateOrder } from '../components/common/Svgs'
@@ -14,7 +14,7 @@ import Loader from '../components/common/Loader'
 export default function OrdersList() {
     const navigation = useNavigation()
     const { user } = useContext(GlobalContext)
-    const orders = useGetRequest({ url: ALL_ORDERS, params: { userId: user.id } }) // TODO: change url to GET_ORDER_BY_USER
+    const orders = useGetRequest({ url: GET_ORDER_BY_USER, params: { userId: user.id } })
     const orderDelete = useDeleteRequest()
 
     const isFocused = useIsFocused()

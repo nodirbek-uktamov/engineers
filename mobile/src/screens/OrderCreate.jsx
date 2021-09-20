@@ -1,31 +1,75 @@
 import React, { useContext, useState, Fragment } from 'react'
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native'
 import { Formik } from 'formik'
 import MapView from 'react-native-maps'
 import { Delete } from 'react-native-feather'
 import { useNavigation } from '@react-navigation/core'
+import { launchImageLibrary } from 'react-native-image-picker'
 import Header from '../components/Header'
 import { GlobalContext } from '../contexts/GlobalContext'
 import Input, { styles as inputStyles } from '../components/common/Input'
-import { ChevronRight, Location, Marker } from '../components/common/Svgs'
+import { Camera, ChevronRight, Location, Marker } from '../components/common/Svgs'
 import { required } from '../utils/validators'
-import { usePostRequest } from '../hooks/request'
-import { CREATE_ORDER } from '../urls'
+import { useImageRequest, usePostRequest } from '../hooks/request'
+import { CREATE_ORDER, UPLOAD_ORDER_IMAGE } from '../urls'
 import Loader from '../components/common/Loader'
 
 const { width } = Dimensions.get('window')
+const defaultFiles = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
+    { id: 5 },
+]
 
 export default function OrderCreate() {
     const { user } = useContext(GlobalContext)
     const [showMap, setShowMap] = useState(false)
     const createOrder = usePostRequest({ url: CREATE_ORDER })
+    const imageRequest = useImageRequest()
     const navigation = useNavigation()
+    const [files, setFiles] = useState(defaultFiles)
 
     async function onSubmit(data, actions) {
+        const filesData = new FormData()
+        const filesList = files.filter((i) => !!i.file)
+
+        filesList.map((item) => {
+            filesData.append('files', {
+                name: item.file.fileName,
+                type: item.file.type,
+                uri: item.file.uri,
+            }, item.file.fileName)
+        })
+
         if (createOrder.loading) return
+
         const { response } = await createOrder.request({ data: { ...data, OwnerId: user.id } })
-        actions.resetForm()
-        navigation.navigate('MyOrders')
+
+        if (response?.success && filesList.length > 0) {
+            // TODO: fix orderId
+            const orderId = 2 // response.data.id
+            const url = `${UPLOAD_ORDER_IMAGE.replace('{id}', orderId)}?orderId=${orderId}`
+
+            await imageRequest.request({ url, data: filesData })
+
+            actions.resetForm()
+            navigation.navigate('MyOrders')
+        }
+    }
+
+    function openGallery(file) {
+        launchImageLibrary({ mediaType: 'photo' }, (data) => {
+            if (!data.uri) return
+
+            const newFiles = files.map((i) => {
+                if (i.id === file.id) return { ...i, file: data }
+                return i
+            })
+
+            setFiles(newFiles)
+        })
     }
 
     return (
@@ -86,6 +130,32 @@ export default function OrderCreate() {
                                             <ChevronRight style={{ width: 30, marginLeft: 15 }} />
                                         </TouchableOpacity>
                                     </View>
+                                </View>
+                            ) : null}
+
+                            {!showMap ? (
+                                <View style={{ flexDirection: 'row' }}>
+                                    {files.map((item) => {
+                                        if (item.file) {
+                                            return (
+                                                <TouchableOpacity activeOpacity={0.8} onPress={() => openGallery(item)}
+                                                    style={{ flex: 1 }}>
+                                                    <Image source={item.file}
+                                                        style={{ marginRight: '5%', width: '95%', height: 70 }} />
+                                                </TouchableOpacity>
+                                            )
+                                        }
+
+                                        return (
+                                            <TouchableOpacity style={{ flex: 1 }} activeOpacity={0.8}
+                                                onPress={() => openGallery(item)}>
+                                                <Camera
+                                                    withBackground={false}
+                                                    style={{ backgroundColor: '#97A1BF', marginRight: '5%' }}
+                                                    width="95%" />
+                                            </TouchableOpacity>
+                                        )
+                                    })}
                                 </View>
                             ) : null}
 

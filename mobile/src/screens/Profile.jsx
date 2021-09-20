@@ -1,6 +1,7 @@
-import React, { Fragment, useContext } from 'react'
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { Mail, Trash2 } from 'react-native-feather'
+import React, { useContext, useEffect } from 'react'
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Mail } from 'react-native-feather'
+import { useIsFocused } from '@react-navigation/core'
 import Header from '../components/Header'
 import { domain } from '../utils/request'
 import { useLoad } from '../hooks/request'
@@ -8,45 +9,25 @@ import { USER_DETAIL } from '../urls'
 import Loader from '../components/common/Loader'
 import { GlobalContext } from '../contexts/GlobalContext'
 import { Reviews } from '../components/common/Svgs'
-import OrderItem from '../components/OrderItem'
-import { getDate } from '../utils/date'
+import ReviewItem from '../components/ReviewItem'
 
 export default function Profile({ route }) {
     const { user: localUser } = useContext(GlobalContext)
     const { userId } = route.params
     const userDetail = useLoad({ url: USER_DETAIL.replace('{id}', userId), params: { userId } })
     const user = userDetail.response?.data
-    const imageUri = user?.image || 'Upload/Default/DefaultImage.png'
+    const isFocused = useIsFocused()
+    const imageUri = user?.image || 'Upload/Default/DefaultImage.png' // TODO: fix image
+
+    useEffect(() => {
+        if (isFocused) {
+            userDetail.setResponse(null)
+            userDetail.request()
+        }
+    }, [isFocused, userId])
 
     function openChat() {
         console.log('open chat') // TODO: write this function
-    }
-
-    const asd = {
-        id: 2,
-        userId: '699f83cd-c29b-4e84-8263-9100315f48e4',
-        orderId: 24,
-        order: {
-            id: 24,
-            name: 'Ttgggtty',
-            description: 'Tfgf',
-            images: null,
-            cost: 5555,
-            longitude: 0,
-            latitude: 0,
-            state: 1,
-            created_at: '2021-09-01T08:04:57.4648263',
-            updated_at: '2021-09-01T08:04:57.4648369',
-            ownerId: '699f83cd-c29b-4e84-8263-9100315f48e4',
-            inWorkId: 0,
-            inWork: null,
-            reviews: [],
-            responds: [],
-        },
-        text: 'Test Otziv na polzovatel',
-        rating: 5,
-        created_at: '2021-09-02T07:30:04.5151997',
-        updated_at: '2021-09-02T07:30:04.5151891',
     }
 
     return (
@@ -54,19 +35,19 @@ export default function Profile({ route }) {
             <Header title="ПРОФИЛЬ" />
 
             {user ? (
-                <View>
+                <ScrollView>
                     <View style={styles.userInfo}>
                         <Image style={styles.image} source={{ uri: `${domain}/${imageUri}` }} />
 
                         <View style={styles.userTexts}>
                             <Text style={styles.name}>{user.fullName}</Text>
-                            <Text style={styles.city}>QWe QWE</Text>
+                            <Text style={styles.city}>{user.city}</Text>
                         </View>
                     </View>
 
                     {user.description ? <Text style={styles.description}>{user.description}</Text> : null}
 
-                    {localUser.id === userId ? (
+                    {localUser.id !== userId ? (
                         <View style={{ alignItems: 'flex-end', marginTop: user.description ? 20 : 0 }}>
                             <TouchableOpacity
                                 onPress={openChat}
@@ -77,32 +58,19 @@ export default function Profile({ route }) {
                         </View>
                     ) : null}
 
-                    <View>
-                        <View style={styles.reviewsTitleContainer}>
-                            <Reviews />
-                            <Text style={styles.reviewsTitle}>ОТЗЫВЫ</Text>
+                    {(user.reviews || []).length > 0 ? (
+                        <View style={{ marginTop: 20, marginBottom: 30 }}>
+                            <View style={styles.reviewsTitleContainer}>
+                                <Reviews />
+                                <Text style={styles.reviewsTitle}>ОТЗЫВЫ</Text>
+                            </View>
+
+                            {(user.reviews || []).map((item) => (
+                                <ReviewItem item={item} />
+                            ))}
                         </View>
-
-                        <FlatList
-                            keyExtractor={(item) => item.id}
-                            data={user.reviews || []}
-                            renderItem={({ item }) => (
-                                <Fragment>
-                                    <View style={styles.userInfo}>
-                                        <Image style={styles.image} source={{ uri: `${domain}/${imageUri}` }} />
-
-                                        <View style={styles.userTexts}>
-                                            <Text>{getDate(item.created_at)}</Text>
-                                            <Text style={styles.name}>Имя пользователя который поставил отзыв </Text>
-                                            <Text style={{ color: '#43BD46' }}>★ ★ ★ ★ {/* TODO: fix stars */}</Text>
-                                        </View>
-                                    </View>
-
-                                    <Text style={styles.description}>{item.text}</Text>
-                                </Fragment>
-                            )} />
-                    </View>
-                </View>
+                    ) : null}
+                </ScrollView>
             ) : null}
 
             {userDetail.loading

@@ -65,9 +65,8 @@ export function useImageRequest(options) {
     const [response, setResponse] = useState(null)
     const [error, setError] = useState({})
     const [loading, setLoading] = useState(false)
-    const { token } = useContext(GlobalContext)
 
-    async function request({ data }) {
+    async function request({ data, url = '' }) {
         try {
             setLoading(true)
             // axios.defaults.headers = {
@@ -75,14 +74,10 @@ export function useImageRequest(options) {
             //     Accept: 'application/json',
             //     'Content-Type': 'multipart/form-data',
             // }
-            const imageResponse = await fetch(`${domain}/api/${options.url}`, {
+
+            const imageResponse = await fetch(`${domain}/api${url || options.url}`, {
                 method: 'POST',
                 body: data,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                    'Content-Type': 'multipart/form-data',
-                },
             })
 
             const result = await imageResponse.json()

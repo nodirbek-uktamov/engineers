@@ -1,19 +1,29 @@
-import React, { useContext, Fragment } from 'react'
+import React, { useContext, Fragment, useState } from 'react'
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Trash2 } from 'react-native-feather'
+import { Formik } from 'formik'
+import StarRating from 'react-native-stars'
+import { useNavigation } from '@react-navigation/core'
 import { GlobalContext } from '../contexts/GlobalContext'
 import { usePostRequest } from '../hooks/request'
-import { DELETE_RESPOND, SELECT_EXECUTOR } from '../urls'
+import { DELETE_RESPOND, ORDER_COMPLETE, SELECT_EXECUTOR, SEND_REVIEW } from '../urls'
 import { surveyAlert } from '../utils/helpers'
 import { getDate } from '../utils/date'
 import { domain } from '../utils/request'
 import { ChevronRight } from './common/Svgs'
 import Loader from './common/Loader'
+import Input from './common/Input'
+import { required } from '../utils/validators'
 
 export default function RespondItem({ item, onDelete, isOwner, order, onChange }) {
+    const navigation = useNavigation()
     const { user } = useContext(GlobalContext)
     const deleteRespond = usePostRequest({ url: DELETE_RESPOND })
     const selectExecutor = usePostRequest({ url: SELECT_EXECUTOR })
+    const completeOrder = usePostRequest({ url: ORDER_COMPLETE.replace('{id}', order.id) })
+    const sendReview = usePostRequest({ url: SEND_REVIEW })
+    const [isReviewFormShown, setIsReviewFormShown] = useState(false)
+    const [rating, setRating] = useState(5)
 
     function handleDeleteRespond(id) {
         surveyAlert(async () => {
@@ -31,8 +41,22 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
         }, 'Вы действительно хотите выбрать этого исполнителя?')
     }
 
-    function closeOrder() {
-        console.log('close order') // TODO: write this function
+    function completeOrderHandler() {
+        surveyAlert(async () => {
+            await completeOrder.request({ data: { ...order, inWorkId: item.id }, params: { userId: item.userId } })
+            onChange()
+        }, 'Вы действительно хотите завершить задание?')
+    }
+
+    function onSendReview(data) {
+        sendReview.request({
+            data: {
+                UserId: item.userId,
+                OrderId: order.id,
+                Text: data.Text,
+                Rating: rating,
+            },
+        })
     }
 
     return (
@@ -40,7 +64,9 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
             {item.userId === user.id ? <Text style={{ color: 'gray', marginBottom: 10 }}>Ваш отклик</Text> : null}
 
             <View style={styles.item}>
-                <Image style={styles.image} source={{ uri: `${domain}/Upload/Default/DefaultImage.png` }} />
+                <TouchableOpacity onPress={() => navigation.navigate('Profile', { userId: item.userId })}>
+                    <Image style={styles.image} source={{ uri: `${domain}/Upload/Default/DefaultImage.png` }} />
+                </TouchableOpacity>
                 {/* TODO: fix image */}
 
                 <View style={styles.flex}>
@@ -62,7 +88,7 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
                 </TouchableOpacity>
             ) : null}
 
-            {isOwner && (order.inWorkId === 0) ? (
+            {isOwner && order.inWorkId === 0 ? (
                 <View style={{ alignItems: selectExecutor.loading ? 'center' : 'flex-end' }}>
                     <TouchableOpacity
                         onPress={executorSelectHandler}
@@ -77,18 +103,63 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
                 </View>
             ) : null}
 
-            {isOwner && (order.inWorkId !== 0) ? (
-                <View style={{ alignItems: false ? 'center' : 'flex-end' }}>
+            {/* TODO: remake this criteria */}
+            {isOwner && order.inWorkId !== 0 ? (
+                <View style={{ alignItems: completeOrder.loading ? 'center' : 'flex-end' }}>
                     <TouchableOpacity
-                        onPress={closeOrder}
+                        onPress={completeOrderHandler}
                         style={styles.button}>
-                        {!false ? (
+                        {!completeOrder.loading ? (
                             <Fragment>
                                 <Text style={styles.buttonText}>ЗАВЕРШИТЬ ЗАДАНИЕ</Text>
                                 <ChevronRight style={{ width: 30, marginLeft: 15 }} />
                             </Fragment>
                         ) : <Loader />}
                     </TouchableOpacity>
+                </View>
+            ) : null}
+
+            {/* Order completed */}
+            {isOwner && order.state === 0 && !sendReview.response?.success ? (
+                <Formik initialValues={{ Text: '' }} onSubmit={onSendReview}>
+                    {({ handleSubmit }) => (
+                        <View>
+                            {isReviewFormShown ? (
+                                <View style={{ marginBottom: 30 }}>
+                                    <Input name="Text" multiline label="Отзыв" validate={required} />
+
+                                    <StarRating
+                                        default={5}
+                                        update={setRating}
+                                        spacing={20}
+                                        starSize={40}
+                                        count={5} />
+                                </View>
+                            ) : null}
+
+                            <View style={{ alignItems: sendReview.loading ? 'center' : 'flex-end' }}>
+                                <TouchableOpacity
+                                    onPress={isReviewFormShown ? handleSubmit : () => setIsReviewFormShown(true)}
+                                    style={styles.button}>
+                                    {!sendReview.loading ? (
+                                        <Fragment>
+                                            <Text style={{ ...styles.buttonText, color: '#43BD46' }}>
+                                                {isOwner ? 'ОСТАВИТЬ ОТЗЫВ' : 'ПОЖАЛОВАТЬСЯ'}
+                                            </Text>
+
+                                            <ChevronRight style={{ width: 30, marginLeft: 15 }} />
+                                        </Fragment>
+                                    ) : <Loader />}
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
+                </Formik>
+            ) : null}
+
+            {sendReview.response?.success ? (
+                <View style={{ alignItems: 'flex-end', flex: 1 }}>
+                    <Text style={{ ...styles.buttonText, color: '#43BD46', marginRight: 45 }}>ОТЗЫВ ОТПРАВЛЕН</Text>
                 </View>
             ) : null}
         </View>

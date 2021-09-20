@@ -3,7 +3,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import MapView, { Marker } from 'react-native-maps'
 import { useIsFocused } from '@react-navigation/core'
 import Header from '../components/Header'
-import { Clock, Description, Map, Respond } from '../components/common/Svgs'
+import { Clock, Description, Done, Map, Respond } from '../components/common/Svgs'
 import { domain } from '../utils/request'
 import { getDate } from '../utils/date'
 import { ORDER_DETAIL, RESPONDS_LIST } from '../urls'
@@ -91,10 +91,17 @@ export default function OrderDetail({ route }) {
                         </View>
                     ) : null}
 
-                    {!responds.loading && order.inWorkId !== 0 ? (
+                    {!responds.loading && order.inWorkId !== 0 && order.state !== 0 ? (
                         <View style={styles.respondsTitleContainer}>
                             <Clock />
                             <Text style={styles.respondsTitle}>ИСПОЛНЕНИЕ ЗАДАНИЯ</Text>
+                        </View>
+                    ) : null}
+
+                    {order.state === 0 ? (
+                        <View style={styles.respondsTitleContainer}>
+                            <Done />
+                            <Text style={styles.respondsTitle}>ЗАВЕРШЕНО</Text>
                         </View>
                     ) : null}
 
