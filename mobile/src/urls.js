@@ -6,7 +6,7 @@ export const GET_ORDER_BY_USER = '/Order/GetByUser'
 export const ORDER_DETAIL = '/Order/Get/{id}'
 export const DELETE_ORDER = '/Order/Delete/{id}'
 export const CREATE_ORDER = '/Order/Create'
-export const ORDER_COMPLETE = '/Order/Complited/{id}'
+export const ORDER_UPDATE = '/Order/Update/{id}'
 export const UPLOAD_ORDER_IMAGE = '/Order/UpLoadImage/{id}'
 
 export const SELECT_EXECUTOR = '/Order/SelectExecutor'

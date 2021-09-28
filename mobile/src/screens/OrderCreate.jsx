@@ -1,6 +1,6 @@
 import React, { useContext, useState, Fragment } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, Dimensions, ScrollView, Image } from 'react-native'
-import { Formik } from 'formik'
+import { Formik, Field } from 'formik'
 import MapView from 'react-native-maps'
 import { Delete } from 'react-native-feather'
 import { useNavigation } from '@react-navigation/core'
@@ -13,8 +13,10 @@ import { required } from '../utils/validators'
 import { useImageRequest, usePostRequest } from '../hooks/request'
 import { CREATE_ORDER, UPLOAD_ORDER_IMAGE } from '../urls'
 import Loader from '../components/common/Loader'
+import ValidationErrorMessage from '../components/common/ValidationErrorMessage'
 
-const { width } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window')
+
 const defaultFiles = [
     { id: 1 },
     { id: 2 },
@@ -47,24 +49,35 @@ export default function OrderCreate() {
 
         const { response } = await createOrder.request({ data: { ...data, OwnerId: user.id } })
 
-        if (response?.success && filesList.length > 0) {
-            // TODO: fix orderId
-            const orderId = 2 // response.data.id
-            const url = `${UPLOAD_ORDER_IMAGE.replace('{id}', orderId)}?orderId=${orderId}`
+        if (response?.success) {
+            if (filesList.length > 0) {
+                const orderId = response.data?.id
+                const url = `${UPLOAD_ORDER_IMAGE.replace('{id}', orderId)}?orderId=${orderId}`
 
-            await imageRequest.request({ url, data: filesData })
+                await imageRequest.request({ url, data: filesData })
+            }
 
             actions.resetForm()
             navigation.navigate('MyOrders')
         }
     }
 
-    function openGallery(file) {
+    function openGallery(item) {
+        if (item.file) {
+            const newFiles = files.map((i) => {
+                if (i.id === item.id) return { id: item.id }
+                return i
+            })
+
+            setFiles(newFiles)
+            return
+        }
+
         launchImageLibrary({ mediaType: 'photo' }, (data) => {
             if (!data.uri) return
 
             const newFiles = files.map((i) => {
-                if (i.id === file.id) return { ...i, file: data }
+                if (i.id === item.id) return { ...i, file: data }
                 return i
             })
 
@@ -77,15 +90,14 @@ export default function OrderCreate() {
             <Header style={{ marginBottom: 40 }} title="СОЗДАНИЕ ЗАДАНИЯ" />
 
             <ScrollView>
-                <Formik onSubmit={onSubmit} initialValues={{ Name: '', Description: '', Longitude: 0, Latitude: 0, Cost: '' }}>
+                <Formik onSubmit={onSubmit}
+                    initialValues={{ Name: '', Description: '', Longitude: '', Latitude: '', Cost: '' }}>
                     {({ setFieldValue, values, handleSubmit }) => (
                         <View style={{ flex: 1 }}>
-                            {!showMap ? (
-                                <View>
-                                    <Input name="Name" label="ЗАГОЛОВОК" validate={required} />
-                                    <Input name="Description" label="ОПИСАНИЕ ЗАДАНИЯ" multiline validate={required} />
-                                </View>
-                            ) : null}
+                            <View style={{ display: showMap ? 'none' : null }}>
+                                <Input name="Name" label="ЗАГОЛОВОК" validate={required} />
+                                <Input name="Description" label="ОПИСАНИЕ ЗАДАНИЯ" multiline validate={required} />
+                            </View>
 
                             <Text style={inputStyles.label}>АДРЕС</Text>
 
@@ -94,6 +106,10 @@ export default function OrderCreate() {
                                 style={[inputStyles.wrapper, styles.addressWrapper]}>
                                 <Location />
                             </TouchableOpacity>
+
+                            <Field name="Longitude" validate={required}>
+                                {() => <ValidationErrorMessage style={{ color: 'green', marginBottom: 15 }} name="Longitude" />}
+                            </Field>
 
                             {values.Latitude && !showMap ? (
                                 <TouchableOpacity onPress={() => {
@@ -105,10 +121,16 @@ export default function OrderCreate() {
                                 </TouchableOpacity>
                             ) : null}
 
-                            {!showMap ? <Input label="ЦЕНА" name="Cost" keyboard="number-pad" validate={required} /> : null}
+                            <Input
+                                wrapperStyle={{ marginTop: 10 }}
+                                label="ЦЕНА"
+                                name="Cost"
+                                keyboard="number-pad"
+                                validate={required}
+                                style={{ display: showMap ? 'none' : null }} />
 
                             {showMap ? (
-                                <View style={{ flex: 1 }}>
+                                <View style={{ flex: 1, marginTop: 15 }}>
                                     <Marker style={styles.marker} />
 
                                     <MapView
@@ -117,9 +139,12 @@ export default function OrderCreate() {
                                             setFieldValue('Longitude', longitude)
                                         }}
                                         showsUserLocation
-                                        style={{ height: 500 }}>
+                                        style={{ height: height / 2 }}>
                                         <Marker
-                                            coordinate={{ latitude: values.Longitude, longitude: values.Latitude }} />
+                                            coordinate={{
+                                                latitude: values.Longitude,
+                                                longitude: values.Latitude,
+                                            }} />
                                     </MapView>
 
                                     <View style={{ alignItems: 'flex-end' }}>
@@ -159,6 +184,10 @@ export default function OrderCreate() {
                                 </View>
                             ) : null}
 
+                            <Text style={{ color: 'red', marginTop: 20 }}>
+                                {!createOrder.response?.success ? createOrder.response?.text : ''}
+                            </Text>
+
                             {!showMap ? (
                                 <View style={{ alignItems: 'flex-end' }}>
                                     <TouchableOpacity
@@ -186,10 +215,10 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         flexDirection: 'row',
         alignItems: 'center',
+        marginTop: 15,
     },
     addressWrapper: {
         justifyContent: 'flex-end',
-        marginBottom: 15,
     },
     container: {
         flex: 1,

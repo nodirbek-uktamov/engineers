@@ -31,8 +31,8 @@ export default function OrdersList() {
             {orders.loading && !orders.response ? <Loader style={{ marginTop: 200 }} /> : null}
 
             <FlatList
-                keyExtractor={(item) => item.id}
-                data={orders.response?.data || []}
+                keyExtractor={(item, index) => index}
+                data={orders.response?.data?.filter((i) => !!i) || []}
                 renderItem={({ item }) => <OrderItem order={item} />} />
         </View>
     )

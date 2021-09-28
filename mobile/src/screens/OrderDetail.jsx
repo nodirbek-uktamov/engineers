@@ -91,14 +91,14 @@ export default function OrderDetail({ route }) {
                         </View>
                     ) : null}
 
-                    {!responds.loading && order.inWorkId !== 0 && order.state !== 0 ? (
+                    {!responds.loading && order.inWorkId !== 0 && order.state === 0 ? (
                         <View style={styles.respondsTitleContainer}>
                             <Clock />
                             <Text style={styles.respondsTitle}>ИСПОЛНЕНИЕ ЗАДАНИЯ</Text>
                         </View>
                     ) : null}
 
-                    {order.state === 0 ? (
+                    {order.state === 3 ? (
                         <View style={styles.respondsTitleContainer}>
                             <Done />
                             <Text style={styles.respondsTitle}>ЗАВЕРШЕНО</Text>
@@ -218,3 +218,51 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 })
+
+const created = {
+    cost: 55,
+    created_at: '2021-09-23T21:56:34.674419',
+    description: '3c3f',
+    id: 1024,
+    images: null,
+    inWorkId: 0,
+    latitude: 0,
+    longitude: 0,
+    name: 'F3f3',
+    ownerId: 'd466309d-481c-4a7c-ae45-c4e63be347da',
+    ownerName: 'Unexnunuexyb',
+    state: 1,
+    updated_at: '2021-09-23T21:56:34.6744387',
+}
+
+const vibrano = {
+    cost: 55,
+    created_at: '2021-09-23T21:56:34.674419',
+    description: '3c3f',
+    id: 1024,
+    images: null,
+    inWorkId: 5,
+    latitude: 0,
+    longitude: 0,
+    name: 'F3f3',
+    ownerId: 'd466309d-481c-4a7c-ae45-c4e63be347da',
+    ownerName: 'Unexnunuexyb',
+    state: 0,
+    updated_at: '2021-09-23T21:56:34.6744387',
+}
+
+const asd = {
+    cost: 55,
+    created_at: '2021-09-23T21:56:34.674419',
+    description: '3c3f',
+    id: 1024,
+    images: null,
+    inWorkId: 5,
+    latitude: 0,
+    longitude: 0,
+    name: 'F3f3',
+    ownerId: 'd466309d-481c-4a7c-ae45-c4e63be347da',
+    ownerName: 'Unexnunuexyb',
+    state: 3,
+    updated_at: '2021-09-28T02:04:44.0643973',
+}

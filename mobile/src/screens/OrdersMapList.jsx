@@ -10,7 +10,7 @@ import { ACTIVE_ORDERS } from '../urls'
 export default function OrdersMapList() {
     const orders = useLoad({ url: ACTIVE_ORDERS })
     const navigation = useNavigation()
-    const ordersList = orders.response?.data?.filter((item) => item.longitude !== 0 && item.latitude !== 0) || []
+    const ordersList = orders.response?.data?.filter((item) => item && item?.longitude !== 0 && item?.latitude !== 0) || []
 
     return (
         <View style={styles.container}>

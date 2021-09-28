@@ -14,7 +14,7 @@ export default function ReviewItem({ item }) {
                 <View style={styles.userTexts}>
                     <Text>{getDate(item.created_at)}</Text>
                     <Text style={styles.name}>Имя пользователя который поставил отзыв {/* TODO: fix name */}</Text>
-                    <Text style={{ color: '#43BD46' }}>★ ★ ★ ★ {/* TODO: fix stars */}</Text>
+                    <Text style={{ color: '#43BD46' }}>{'★ '.repeat(item.rating)}</Text>
                 </View>
             </View>
 

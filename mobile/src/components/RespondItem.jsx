@@ -5,8 +5,8 @@ import { Formik } from 'formik'
 import StarRating from 'react-native-stars'
 import { useNavigation } from '@react-navigation/core'
 import { GlobalContext } from '../contexts/GlobalContext'
-import { usePostRequest } from '../hooks/request'
-import { DELETE_RESPOND, ORDER_COMPLETE, SELECT_EXECUTOR, SEND_REVIEW } from '../urls'
+import { usePostRequest, usePutRequest } from '../hooks/request'
+import { DELETE_RESPOND, ORDER_UPDATE, SELECT_EXECUTOR, SEND_REVIEW } from '../urls'
 import { surveyAlert } from '../utils/helpers'
 import { getDate } from '../utils/date'
 import { domain } from '../utils/request'
@@ -20,7 +20,7 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
     const { user } = useContext(GlobalContext)
     const deleteRespond = usePostRequest({ url: DELETE_RESPOND })
     const selectExecutor = usePostRequest({ url: SELECT_EXECUTOR })
-    const completeOrder = usePostRequest({ url: ORDER_COMPLETE.replace('{id}', order.id) })
+    const updateOrder = usePutRequest({ url: ORDER_UPDATE.replace('{id}', order.id) })
     const sendReview = usePostRequest({ url: SEND_REVIEW })
     const [isReviewFormShown, setIsReviewFormShown] = useState(false)
     const [rating, setRating] = useState(5)
@@ -43,13 +43,13 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
 
     function completeOrderHandler() {
         surveyAlert(async () => {
-            await completeOrder.request({ data: { ...order, inWorkId: item.id }, params: { userId: item.userId } })
+            await updateOrder.request({ data: { ...order, state: 3 } })
             onChange()
         }, 'Вы действительно хотите завершить задание?')
     }
 
-    function onSendReview(data) {
-        sendReview.request({
+    async function onSendReview(data) {
+        const { response, error } = await sendReview.request({
             data: {
                 UserId: item.userId,
                 OrderId: order.id,
@@ -57,6 +57,7 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
                 Rating: rating,
             },
         })
+        console.log(response, error?.data)
     }
 
     return (
@@ -103,13 +104,12 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
                 </View>
             ) : null}
 
-            {/* TODO: remake this criteria */}
-            {isOwner && order.inWorkId !== 0 ? (
-                <View style={{ alignItems: completeOrder.loading ? 'center' : 'flex-end' }}>
+            {isOwner && order.inWorkId > 0 && order.state === 0 ? (
+                <View style={{ alignItems: updateOrder.loading ? 'center' : 'flex-end' }}>
                     <TouchableOpacity
                         onPress={completeOrderHandler}
                         style={styles.button}>
-                        {!completeOrder.loading ? (
+                        {!updateOrder.loading ? (
                             <Fragment>
                                 <Text style={styles.buttonText}>ЗАВЕРШИТЬ ЗАДАНИЕ</Text>
                                 <ChevronRight style={{ width: 30, marginLeft: 15 }} />
@@ -120,7 +120,7 @@ export default function RespondItem({ item, onDelete, isOwner, order, onChange }
             ) : null}
 
             {/* Order completed */}
-            {isOwner && order.state === 0 && !sendReview.response?.success ? (
+            {isOwner && order.state === 3 && !sendReview.response?.success ? (
                 <Formik initialValues={{ Text: '' }} onSubmit={onSendReview}>
                     {({ handleSubmit }) => (
                         <View>
