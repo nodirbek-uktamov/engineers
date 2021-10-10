@@ -14,6 +14,10 @@ import OrderDetail from './screens/OrderDetail'
 import MyOrders from './screens/MyOrders'
 import OrderCreate from './screens/OrderCreate'
 import Profile from './screens/Profile'
+import AllExecutors from './screens/AllExecutors'
+import Balance from './screens/Balance'
+import Dialogs from './screens/Dialogs'
+import ChangeProfile from './screens/ChangeProfile'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -42,6 +46,10 @@ export default function Navigation() {
                 <Drawer.Screen name="MyOrders" component={MyOrders} />
                 <Drawer.Screen name="OrderCreate" component={OrderCreate} />
                 <Drawer.Screen name="Profile" component={Profile} />
+                <Drawer.Screen name="AllExecutors" component={AllExecutors} />
+                <Drawer.Screen name="Balance" component={Balance} />
+                <Drawer.Screen name="Dialogs" component={Dialogs} />
+                <Drawer.Screen name="ChangeProfile" component={ChangeProfile} />
 
                 {/* <Stack.Screen */}
                 {/* name="TabScreen" */}

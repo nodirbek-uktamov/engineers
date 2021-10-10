@@ -2,9 +2,10 @@ import React, { useContext } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { Camera, Logo } from './common/Svgs'
 import { GlobalContext } from '../contexts/GlobalContext'
+import { surveyAlert } from '../utils/helpers'
 
 export default function CustomDrawer({ navigation }) {
-    const { user } = useContext(GlobalContext)
+    const { user, signOut } = useContext(GlobalContext)
 
     function Navigate({ to, text }) {
         return (
@@ -12,6 +13,13 @@ export default function CustomDrawer({ navigation }) {
                 <Text style={styles.tabText}>{text}</Text>
             </TouchableOpacity>
         )
+    }
+
+    function logout() {
+        surveyAlert(() => {
+            signOut()
+            navigation.navigate('ChooseRole')
+        }, 'Вы действительно хотите выйти?')
     }
 
     if (!user) return <View />
@@ -32,16 +40,16 @@ export default function CustomDrawer({ navigation }) {
             <View style={{ marginTop: 30 }}>
                 <Navigate to="MyOrders" text="Мои задания" />
                 <Navigate to="OrdersList" text="Все задания" />
-                <Text style={styles.tabText}>Все исполнители</Text>
-                <Text style={styles.tabText}>Баланс</Text>
-                <Text style={styles.tabText}>Диалоги</Text>
+                <Navigate to="AllExecutors" text="Все исполнители" />
+                <Navigate to="Balance" text="Баланс" />
+                <Navigate to="Dialogs" text="Диалоги" />
             </View>
 
             <View style={{ marginTop: 30 }}>
-                <Text style={styles.tabText}>Меню</Text>
+                {/* <Text style={styles.tabText}>Меню</Text> */}
                 <Text style={styles.tabText}>Уведомления</Text>
-                <Text style={styles.tabText}>Редактирование профиля</Text>
-                <Text style={styles.tabText}>Выход</Text>
+                <Navigate to="ChangeProfile" text="Редактирование профиля" />
+                <TouchableOpacity onPress={logout}><Text style={styles.tabText}>Выход</Text></TouchableOpacity>
             </View>
 
             <Logo width={150} style={{ marginTop: 50 }} />

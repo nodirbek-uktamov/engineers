@@ -13,8 +13,7 @@ import ReviewItem from '../components/ReviewItem'
 
 export default function Profile({ route }) {
     const { user: localUser } = useContext(GlobalContext)
-    // const { userId } = route.params
-    const userId = 'bfd27860-881a-4de5-ab5f-ef282ab61a86'
+    const { userId } = route.params
     const userDetail = useLoad({ url: USER_DETAIL.replace('{id}', userId), params: { userId } })
     const user = userDetail.response?.data
     const isFocused = useIsFocused()

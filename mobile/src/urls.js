@@ -18,3 +18,6 @@ export const SEND_RESPOND = '/Order/SendRespond'
 export const DELETE_RESPOND = '/Respond/Delete'
 
 export const USER_DETAIL = '/User/GetById/{id}'
+
+export const USERS_LIST = '/User/GetUsers'
+export const USER_UPDATE = '/User/Update/{id}'
