@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import Button from '../../components/common/Button'
 import { BottomImage, Logo } from '../../components/common/Svgs'
@@ -21,6 +21,10 @@ export default function ChooseRole() {
                 <Text style={styles.chooseRole}>
                     Для удобства дальнейшего использования приложения выберите роль пользователя
                 </Text>
+
+                <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.login}>
+                    <Text style={styles.loginText}>У меня уже есть аккаунт. Войти</Text>
+                </TouchableOpacity>
             </View>
 
             <BottomImage resizeMode="contain" style={styles.bottomImage} width="100%" />
@@ -29,6 +33,15 @@ export default function ChooseRole() {
 }
 
 const styles = StyleSheet.create({
+    loginText: {
+        color: '#209cee',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    login: {
+        marginTop: 50,
+        alignItems: 'center',
+    },
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',

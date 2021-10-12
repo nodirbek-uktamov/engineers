@@ -21,3 +21,4 @@ export const USER_DETAIL = '/User/GetById/{id}'
 
 export const USERS_LIST = '/User/GetUsers'
 export const USER_UPDATE = '/User/Update/{id}'
+export const LOGIN = '/User/Login'

@@ -1,37 +1,32 @@
-import React, { useState, useContext } from 'react'
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native'
+import React, { useContext, useState } from 'react'
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useNavigation } from '@react-navigation/core'
 import { Formik } from 'formik'
 import Input from '../../components/common/Input'
 import { required } from '../../utils/validators'
 import { ChevronLeft, ChevronRight, TopImage } from '../../components/common/Svgs'
 import { usePostRequest } from '../../hooks/request'
-import { REGISTRATION } from '../../urls'
+import { LOGIN } from '../../urls'
 import { GlobalContext } from '../../contexts/GlobalContext'
 
-export default function Registration({ route }) {
-    const { Role } = route.params
+export default function Login() {
     const navigation = useNavigation()
     const { auth } = useContext(GlobalContext)
-    const initialValues = { FullName: '', UserName: '', PhoneNumber: '', City: '', Age: 0, Password: '' }
-    const registration = usePostRequest({ url: REGISTRATION })
+    const initialValues = { userName: '', password: '' }
+    const login = usePostRequest({ url: LOGIN })
     const [error, setError] = useState('')
-    console.log(Role)
 
     async function onSubmit(data) {
-        const { response } = await registration.request({
-            params: { password: data.Password },
-            data: { ...data, Role },
-        })
+        setError('')
+        const { response } = await login.request({ params: data })
 
-        if (response.success) {
-            setError('')
+        if (response?.success) {
             auth(response.data)
             navigation.reset({ index: 0, routes: [{ name: 'OrdersList' }] })
             return
         }
 
-        setError(response.text || '')
+        setError('Никнейм или пароль не правильно')
     }
 
     return (
@@ -42,25 +37,19 @@ export default function Registration({ route }) {
                 <View style={{ alignItems: 'center' }}>
                     <View style={styles.content}>
                         <Text style={styles.title}>СОЗДАНИЕ ПРОФИЛЯ</Text>
-                        <Text style={styles.role}>Я {Role === 'customer' ? 'заказчик' : 'исполнитель'}</Text>
+                        <Text style={styles.role}>Я заказчик</Text>
 
                         <Formik initialValues={initialValues} onSubmit={onSubmit}>
                             {({ handleSubmit, setFieldValue }) => (
                                 <View>
-                                    <Input name="FullName" validate={required} label="ФИО" />
-
                                     <Input
-                                        name="UserName"
-                                        onChangeText={(value) => setFieldValue('UserName', value.replace(/\s/g, ''))}
+                                        name="userName"
+                                        onChangeText={(value) => setFieldValue('userName', value.replace(/\s/g, ''))}
                                         validate={required} label="Никнейм" />
-
-                                    <Input name="PhoneNumber" keyboard="phone-pad" label="Телефонный номер" />
-                                    <Input name="City" label="Город" />
-                                    <Input name="Age" validate={required} keyboard="numeric" label="Возраст" />
 
                                     <Input
                                         autoCapitalize="none"
-                                        name="Password"
+                                        name="password"
                                         label="Пароль"
                                         eye
                                         validate={required}
@@ -74,19 +63,15 @@ export default function Registration({ route }) {
                                             <Text style={{ color: '#394355', ...styles.buttonText }}>НАЗАД</Text>
                                         </TouchableOpacity>
 
-                                        {registration.loading ? <ActivityIndicator size="large" color="#000" style={styles.button} /> : (
+                                        {login.loading ? <ActivityIndicator size="large" color="#000" style={styles.button} /> : (
                                             <TouchableOpacity
                                                 onPress={handleSubmit}
                                                 style={styles.button}>
-                                                <Text style={{ color: '#43BD46', ...styles.buttonText }}>СОХРАНИТЬ</Text>
+                                                <Text style={{ color: '#43BD46', ...styles.buttonText }}>ВОЙТИ</Text>
                                                 <ChevronRight style={{ width: 30, marginLeft: 15 }} />
                                             </TouchableOpacity>
                                         )}
                                     </View>
-
-                                    <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.login}>
-                                        <Text style={styles.loginText}>У меня уже есть аккаунт. Войти</Text>
-                                    </TouchableOpacity>
                                 </View>
                             )}
                         </Formik>
@@ -98,15 +83,6 @@ export default function Registration({ route }) {
 }
 
 const styles = StyleSheet.create({
-    loginText: {
-        color: '#209cee',
-        fontSize: 16,
-        textDecorationLine: 'underline',
-    },
-    login: {
-        marginVertical: 30,
-        alignItems: 'center',
-    },
     container: {
         backgroundColor: '#FFFFFF',
         flex: 1,
@@ -140,12 +116,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         width: '100%',
-        marginTop: 30,
+        marginVertical: 30,
     },
     button: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: 155,
+        width: 110,
     },
     buttonText: {
         fontSize: 17,

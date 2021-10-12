@@ -18,6 +18,7 @@ import AllExecutors from './screens/AllExecutors'
 import Balance from './screens/Balance'
 import Dialogs from './screens/Dialogs'
 import ChangeProfile from './screens/ChangeProfile'
+import Login from './screens/Auth/Login'
 
 const Tab = createBottomTabNavigator()
 const Drawer = createDrawerNavigator()
@@ -34,11 +35,8 @@ export default function Navigation() {
                 {/* Auth */}
                 <Drawer.Screen options={{ gestureEnabled: false }} name="ChooseRole" component={ChooseRole} />
                 <Drawer.Screen name="Agreement" options={{ gestureEnabled: false }} component={Agreement} />
-
-                <Drawer.Screen
-                    name="Registration"
-                    options={{ gestureEnabled: false }}
-                    component={Registration} />
+                <Drawer.Screen name="Login" options={{ gestureEnabled: false }} component={Login} />
+                <Drawer.Screen name="Registration" options={{ gestureEnabled: false }} component={Registration} />
 
                 <Drawer.Screen name="OrdersList" component={OrdersList} />
                 <Drawer.Screen name="OrdersMapList" component={OrdersMapList} />
